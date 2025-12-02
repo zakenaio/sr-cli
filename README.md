@@ -49,3 +49,10 @@ sr-cli "din gata"
 
 ### Avsluta
 Tryck `Ctrl+C` för att stoppa uppspelningen och avsluta.
+
+
+### Att göra 
+Make it pretty. 
+Snygga till gränssnitt, bättre användande av yta. 
+Möjlighet till att byta kanal/program direkt i cli utan att avsluta.
+
