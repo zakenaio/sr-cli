@@ -96,9 +96,20 @@ def tui_loop(channel_name, channel_id, stop_event):
     """
     Updates the UI with metadata while playing.
     """
+    last_fetch = 0
+    fetch_interval = 10
+    program = "Loading..."
+    song = ""
+
     while not stop_event.is_set():
+        current_time = time.time()
+        
+        # Fetch metadata only if interval has passed
+        if current_time - last_fetch > fetch_interval:
+            program, song = get_now_playing(channel_id)
+            last_fetch = current_time
+
         width = shutil.get_terminal_size().columns
-        program, song = get_now_playing(channel_id)
         
         clear_screen()
         print("\n" * 2)
@@ -115,7 +126,7 @@ def tui_loop(channel_name, channel_id, stop_event):
         print("\n" * 2)
         print_centered("[ Press Ctrl+C to Stop ]", width)
         
-        time.sleep(10)
+        time.sleep(1)
 
 def play_channel(channel_name, channel_id):
     """
