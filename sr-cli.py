@@ -64,8 +64,8 @@ def get_now_playing(channel_id):
         response = requests.get(prog_url, timeout=2)
         if response.status_code == 200:
             data = response.json()
-            if 'scheduledepisode' in data:
-                program_title = data['scheduledepisode'].get('title', 'Unknown Program')
+            if 'channel' in data and 'currentscheduledepisode' in data['channel']:
+                program_title = data['channel']['currentscheduledepisode'].get('title', 'Unknown Program')
     except Exception:
         pass
 
