@@ -22,7 +22,7 @@ def get_channels():
         response = requests.get(next_page_url)
         response.raise_for_status()
         data = response.json()
-        
+
         if 'channels' in data:
             channels.extend(data['channels'])
 
@@ -43,10 +43,10 @@ def get_live_url(channel_id):
         response = requests.get(url)
         response.raise_for_status()
         data = response.json()
-        
+
         if 'channel' in data and 'liveaudio' in data['channel']:
             return data['channel']['liveaudio']['url']
-            
+
     except Exception:
         pass
     return None
@@ -57,7 +57,7 @@ def get_now_playing(channel_id):
     """
     program_title = "Unknown Program"
     song_title = ""
-    
+
     # Get scheduled episode
     try:
         prog_url = f"{BASE_URL}/scheduledepisodes/rightnow?channelid={channel_id}&format=json"
@@ -83,7 +83,7 @@ def get_now_playing(channel_id):
                     song_title = f"{song['artist']} - {song['title']}"
     except Exception:
         pass
-        
+
     return program_title, song_title
 
 def clear_screen():
@@ -94,7 +94,7 @@ def print_centered(text, width):
 
 def tui_loop(channel_name, channel_id, stop_event):
     """
-    Updates the UI with metadata while playing.
+    Updates the terminal UI with current program and song while playing.
     """
     last_fetch = 0
     fetch_interval = 10
@@ -103,29 +103,33 @@ def tui_loop(channel_name, channel_id, stop_event):
 
     while not stop_event.is_set():
         current_time = time.time()
-        
-        # Fetch metadata only if interval has passed
+
+        # Fetch metadata periodically
         if current_time - last_fetch > fetch_interval:
-            program, song = get_now_playing(channel_id)
+            prog, sng = get_now_playing(channel_id)
+            if prog:
+                program = prog
+            if sng:
+                song = sng
             last_fetch = current_time
 
         width = shutil.get_terminal_size().columns
-        
+
         clear_screen()
         print("\n" * 2)
-        print_centered("=" * 40, width)
+        print_centered("=" * 50, width)
         print_centered(f"SR CLI - PLAYING {channel_name.upper()}", width)
         print_centered(f"{time.strftime('%H:%M:%S')}", width)
-        print_centered("=" * 40, width)
+        print_centered("=" * 50, width)
         print("\n")
-        
+
         print_centered(f"PROGRAM: {program}", width)
         if song:
             print_centered(f"MUSIC:   {song}", width)
-            
+
         print("\n" * 2)
         print_centered("[ Press Ctrl+C to Stop ]", width)
-        
+
         time.sleep(1)
 
 def play_channel(channel_name, channel_id):
@@ -138,7 +142,7 @@ def play_channel(channel_name, channel_id):
         return
 
     print(f"Starting {channel_name}...")
-    
+
     # Start mpv
     try:
         mpv_process = subprocess.Popen(
@@ -175,12 +179,12 @@ def interactive_menu(channels):
         print("-" * 20)
         for i, channel in enumerate(channels):
             print(f"[{i+1:2}] {channel['name']}")
-        
+
         choice = input("\nSelect channel (number) or 'q' to quit: ").strip().lower()
-        
+
         if choice == 'q':
             sys.exit(0)
-            
+
         try:
             idx = int(choice) - 1
             if 0 <= idx < len(channels):
@@ -216,7 +220,7 @@ def main():
                 if search in c['name'].lower():
                     selected_channel = c
                     break
-        
+
         if not selected_channel:
             print(f"Channel '{args.channel}' not found.")
             sys.exit(1)
