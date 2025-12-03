@@ -56,3 +56,6 @@ Make it pretty.
 Snygga till gränssnitt, bättre användande av yta. 
 Möjlighet till att byta kanal/program direkt i cli utan att avsluta.
 
+Valde istället att göra en helt ny för de funktionerna.
+https://github.com/zakenaio/sr-tui
+
