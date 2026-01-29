@@ -1,0 +1,8 @@
+README.md
+setup.py
+sr-tui.py
+sr_tui.egg-info/PKG-INFO
+sr_tui.egg-info/SOURCES.txt
+sr_tui.egg-info/dependency_links.txt
+sr_tui.egg-info/requires.txt
+sr_tui.egg-info/top_level.txt
