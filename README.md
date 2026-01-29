@@ -2,18 +2,18 @@
 
 Ett modernt och vackert kommandoradsverktyg för att lyssna på Sveriges Radio direkt i terminalen. Stöder både **live-radio** och **poddar**. Inspirerat av Spotify's design.
 
-## ✨ Funktioner
+## Funktioner
 
-- **📻 Radio & Poddar:** Stöd för livekanaler och uppspelning av poddavsnitt.
-- **🎨 Spotify-inspirerat gränssnitt:** Mörkt tema med gröna accenter (#1DB954).
-- **📱 Dynamisk Layout:** Två/Trekolumnslayout beroende på läge.
-- **⌨️ Full Tangentbordsnavigering:** Navigera, byt läge och sök utan att lämna gränssnittet.
-- **🔍 Sökfunktion:** Filtrera kanaler/poddar i realtid.
-- **🎵 Live-metadata:** Visar nuvarande program och låt (för radio).
-- **⏩ Podcast-kontroll:** Spola framåt/bakåt (15 sek) och visa uppspelningsposition.
-- **🔄 Smidig hantering:** Byt mellan kanaler/avsnitt utan att starta om appen.
+- **Radio & Poddar:** Stöd för livekanaler och uppspelning av poddavsnitt.
+- **Spotify-inspirerat gränssnitt:** Mörkt tema med gröna accenter (#1DB954).
+- **Dynamisk Layout:** Två/Trekolumnslayout beroende på läge.
+- **Full Tangentbordsnavigering:** Navigera, byt läge och sök utan att lämna gränssnittet.
+- **Sökfunktion:** Filtrera kanaler/poddar i realtid.
+- **Live-metadata:** Visar nuvarande program och låt (för radio).
+- **Podcast-kontroll:** Spola framåt/bakåt (15 sek) och visa uppspelningsposition.
+- **Smidig hantering:** Byt mellan kanaler/avsnitt utan att starta om appen.
 
-## 📋 Förutsättningar
+## Förutsättningar
 
 Du behöver ha följande installerat:
 
@@ -26,7 +26,7 @@ Du behöver ha följande installerat:
 - **Arch Linux (CachyOS):** `sudo pacman -S mpv`
 - **macOS (Homebrew):** `brew install mpv`
 
-## 🚀 Installation
+## Installation
 
 Installationen är automatiserad med ett skript. Det skapar en virtuell miljö (`.venv`) och en global länk (`sr-tui`) i `~/.local/bin/`.
 
@@ -44,7 +44,7 @@ Installationen är automatiserad med ett skript. Det skapar en virtuell miljö (
    sr-tui
    ```
 
-## ⌨️ Tangentbordskommandon
+## Tangentbordskommandon
 
 | Tangent | Läge | Funktion |
 |---------|----------|----------|
@@ -59,7 +59,7 @@ Installationen är automatiserad med ett skript. Det skapar en virtuell miljö (
 | `Esc` | Alla | Rensa sökning (Radio) / Avsluta sökning (Podcast) |
 | `q` | Alla | Avsluta programmet |
 
-## 🎨 Design
+## Design
 
 Gränssnittet är inspirerat av Spotify och använder:
 - **Färgschema:** Mörk bakgrund (#191414) med Spotify-grön accent (#1DB954)
