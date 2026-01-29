@@ -19,6 +19,8 @@ import tty
 import termios
 import os
 import logging
+import re
+from datetime import datetime
 import unicodedata
 
 # Configure logging
@@ -41,40 +43,40 @@ GRAY_TEXT = "#B3B3B3"
 
 # ASCII Block Font for "Big Text" (3x5)
 BIG_FONT = {
-    'A': [" ▄▀▀▄", "█▄▄▄█", "█▀▀▀█", "█   █", "█   █"],
-    'B': ["█▀▀▀▄", "█▄▄▄▀", "█▀▀▀▄", "█   █", "█▄▄▄▀"],
-    'C': [" ▄▀▀▀ ", "█     ", "█     ", "█     ", " ▀▀▀▀ "],
-    'D': ["█▀▀▀▄", "█   █", "█   █", "█   █", "█▄▄▄▀"],
-    'E': ["█▀▀▀▀", "█    ", "█▀▀▀ ", "█    ", "▀▀▀▀▀"],
-    'F': ["█▀▀▀▀", "█▀▀▀ ", "█▀▀▀ ", "█    ", "▀    "],
-    'G': [" ▄▀▀▀", "█  ▄▄", "█   █", "█   █", " ▀▀▀▀"],
-    'H': ["█   █", "█   █", "█▀▀▀█", "█   █", "█   █"],
+    'A': ["▄▀▄", "█ █", "█▀█", "█ █", "█ █"],
+    'B': ["█▀▀▄", "█▄▄▀", "█  █", "█  █", "█▄▄▀"],
+    'C': ["▄▀▀ ", "█   ", "█   ", "█   ", " ▀▀ "],
+    'D': ["█▀▀▄", "█  █", "█  █", "█  █", "█▄▄▀"],
+    'E': ["█▀▀", "█  ", "█▀▀", "█  ", "█▄▄"],
+    'F': ["█▀▀▀", "█▀▀ ", "█▀▀ ", "█  ", "▀   "],
+    'G': ["▄▀▀ ", "█   ", "█ ▄▄", "█  █", "▀▄▄▀"],
+    'H': ["█  █", "█  █", "█▀▀█", "█  █", "█  █"],
     'I': ["▀█▀", " █ ", " █ ", " █ ", "▄█▄"],
-    'J': ["    █", "    █", "    █", "█   █", " ▀▀▀ "],
+    'J': ["   █", "   █", "   █", "▄  █", " ▀▄▀"],
     'K': ["█  █", "█ ▄▀", "█▀▄ ", "█  █", "█  █"],
-    'L': ["█    ", "█    ", "█    ", "█    ", "▀▀▀▀▀"],
-    'M': ["█   █", "██▄██", "█ ▀ █", "█   █", "█   █"],
+    'L': ["█  ", "█  ", "█  ", "█  ", "█▄▄"],
+    'M': ["█   █", "█▄ ▄█", "█ ▀ █", "█   █", "█   █"],
     'N': ["█   █", "██  █", "█ █ █", "█  ██", "█   █"],
-    'O': [" ▄▀▀▄ ", "█    █", "█    █", "█    █", " ▀▄▄▀ "],
-    'P': ["█▀▀▀▄", "█▄▄▄▀", "█    ", "█    ", "▀    "],
-    'Q': [" ▄▀▀▄ ", "█    █", "█  █ █", "█   ▀█", " ▀▄▄▀▄"],
-    'R': ["█▀▀▀▄", "█▄▄▄▀", "█▀▀▄ ", "█  █ ", "▀  ▀ "],
-    'S': [" ▄▀▀▀", "▀▄▄▄ ", " ▄▄▄▀", "▀▄▄▄ ", "▀▀▀▀ "],
-    'T': ["▀▀█▀▀", "  █  ", "  █  ", "  █  ", "  ▀  "],
-    'U': ["█   █", "█   █", "█   █", "█   █", " ▀▀▀ "],
-    'V': ["█   █", "█   █", "█   █", " ▀▄▀ ", "  ▀  "],
+    'O': ["▄▀▀▄", "█  █", "█  █", "█  █", "▀▄▄▀"],
+    'P': ["█▀▀▄", "█▄▄▀", "█   ", "█   ", "█   "],
+    'Q': ["▄▀▀▄", "█  █", "█  █", "█  █", " ▀▄▀▄"],
+    'R': ["█▀▀▄", "█▄▄▀", "█  █", "█  █", "█  █"],
+    'S': ["▄▀▀ ", "█   ", "▀▄▄▄", "   █", "▄▄▄▀"],
+    'T': ["▀█▀", " █ ", " █ ", " █ ", " █ "],
+    'U': ["█ █", "█ █", "█ █", "█ █", "▀▄▀"],
+    'V': ["█ █", "█ █", "█ █", "▀▄▀", "  █  "],
     'W': ["█   █", "█   █", "█ ▄ █", "██▄██", "█   █"],
-    'X': ["█   █", " ▀▄▀ ", "  █  ", " ▄▀▄ ", "█   █"],
-    'Y': ["█   █", " ▀▄▀ ", "  █  ", "  █  ", "  ▀  "],
-    'Z': ["▀▀▀▀█", "   █ ", "  █  ", " █   ", "▀▀▀▀▀"],
-    'Å': ["  ▄  ", " █▀█ ", " █▀█ ", " █ █ ", " █ █ "],
-    'Ä': [" ▄ ▄ ", " █▀█ ", " █▀█ ", " █ █ ", " █ █ "],
-    'Ö': [" ▄  ▄ ", " ▄▀▀▄ ", " █  █ ", " █  █ ", " ▀▀▀▀ "],
-    'Á': ["  ▄  ", " █▀█ ", " █▀█ ", " █ █ ", " █ █ "],
+    'X': ["█ █", "▀▄▀", " █ ", "▄▀▄", "█ █"],
+    'Y': ["█ █", "▀▄▀", " █ ", " █ ", " █ "],
+    'Z': ["▀▀▀█", "  █ ", " █  ", "█   ", "▀▀▀▀"],
+    'Å': [" ▀ ", "█▀█", "█▀█", "█ █", "█ █"],
+    'Ä': ["▀ ▀", "█▀█", "█▀█", "█ █", "█ █"],
+    'Ö': ["▀  ▀", "▄▀▀▄", "█  █", "█  █", "▀▄▄▀"],
+    'Á': [" ▀ ", "█▀█", "█▀█", "█ █", "█ █"],
     '0': [" ▄▀▀▄ ", "█  █ █", "█ █  █", "█    █", " ▀▄▄▀ "],
     '1': [" ▄█ ", "  █ ", "  █ ", "  █ ", " ▄█▄"],
     '2': [" ▄▀▀▄ ", "    █", "  ▄▀ ", " █   ", " ▀▀▀▀"],
-    '3': [" ▀▀▀▄ ", "    █", "  ▀▀▄", "    █", " ▀▀▀▀ "],
+    '3': [" ▀▀▀▄ ", "    █", "  ▀▀▄", "    █", " ▄▄▄▀"],
     '4': ["█  █", "█  █", "▀▀▀█", "   █", "   █"],
     '5': ["█▀▀▀▀", "█▀▀▀ ", " ▀▀▀▄", "    █", "▀▀▀▀ "],
     '6': [" ▄▀▀▀", "█▀▀▀▄", "█   █", "▀▄▄▄▀", " ▀▀▀ "],
@@ -130,7 +132,6 @@ class SRPlayer:
         
     def render_big_text(self, text, color=SPOTIFY_GREEN):
         """Converts text to ASCII block letters."""
-        # Normalize to NFC to ensure composed characters match our dictionary keys
         text = unicodedata.normalize('NFC', text).upper()
         lines = ["", "", "", "", ""]
         
@@ -222,7 +223,6 @@ class SRPlayer:
     def get_podcasts(self):
         """Fetches the list of podcast programs from the SR API."""
         try:
-            # Fetching first 100 purely as example/performance. Add pagination handling for full list.
             response = requests.get(f"{BASE_URL}/programs/index?haspod=true&format=json&pagination=false")
             response.raise_for_status()
             data = response.json()
@@ -236,14 +236,41 @@ class SRPlayer:
         return False
     
     def get_episodes(self, program_id):
-        """Fetches episodes for a specific podcast program."""
+        """Fetches episodes for a specific podcast program using the episodes endpoint for richer metadata."""
         try:
-            response = requests.get(f"{BASE_URL}/podfiles?programid={program_id}&format=json&pagination=false")
+            # Use episodes endpoint instead of podfiles for better descriptions and titles
+            response = requests.get(f"{BASE_URL}/episodes/index?programid={program_id}&format=json&pagination=false")
             response.raise_for_status()
             data = response.json()
             
-            if 'podfiles' in data:
-                self.episodes = data['podfiles']
+            if 'episodes' in data:
+                # Map episodes to a consistent format
+                self.episodes = []
+                for ep in data['episodes']:
+                    # Extract stream URL from listenpodfile or fallback
+                    url = ""
+                    duration = 0
+                    if 'listenpodfile' in ep:
+                        url = ep['listenpodfile'].get('url', '')
+                        duration = ep['listenpodfile'].get('duration', 0)
+                    
+                    # Parse publish date
+                    date_str = ""
+                    publish_date = ep.get('publishdateutc', '')
+                    date_match = re.search(r'(\d+)', publish_date)
+                    if date_match:
+                        ts = int(date_match.group(1)) / 1000.0
+                        date_str = datetime.fromtimestamp(ts).strftime('%Y-%m-%d %H:%M')
+                    
+                    self.episodes.append({
+                        'id': ep.get('id'),
+                        'title': ep.get('title', 'Unknown Episode'),
+                        'description': ep.get('description', ''),
+                        'url': url,
+                        'duration': duration,
+                        'program': ep.get('program', {}),
+                        'date': date_str
+                    })
                 return True
         except Exception as e:
             console.print(f"[red]Error fetching episodes: {e}[/red]")
@@ -478,7 +505,7 @@ class SRPlayer:
             table.add_row(text)
         
         # Create title with search indicator
-        title = "📻 Channels"
+        title = "Channels"
         if self.filter_text:
             title += f" (filter: {self.filter_text})"
         
@@ -519,7 +546,7 @@ class SRPlayer:
             
             table.add_row(text)
         
-        title = "🎙️ Podcasts"
+        title = "Podcasts"
         if self.filter_text:
             title += f" (filter: {self.filter_text})"
             
@@ -535,7 +562,7 @@ class SRPlayer:
                 vertical="middle"
             )
             border_color = SPOTIFY_GREEN if self.active_podcast_pane == 'episodes' else "dim white"
-            return Panel(content, title="📻 Episodes", border_style=border_color, padding=(1, 2))
+            return Panel(content, title="Episodes", border_style=border_color, padding=(1, 2))
         
         filtered = self.get_filtered_episodes()
         
@@ -558,12 +585,17 @@ class SRPlayer:
             is_selected = actual_index == self.selected_episode_index
             is_playing = self.playing_episode and episode.get('id') == self.playing_episode.get('id')
             
-            title = episode.get('title', 'Unknown')
-            if len(title) > 40:
-                title = title[:37] + "..."
+            # Format title for list: use date + first part of title if possible
+            display_title = episode.get('date', 'Unknown Date')
+            # If we want a bit of the title too:
+            # title = episode.get('title', 'Unknown')
+            # display_title = f"{episode.get('date')} - {title}"
+            
+            if len(display_title) > 60:
+                display_title = display_title[:57] + "..."
             duration = self.format_time(episode.get('duration', 0))
             prefix = "▶ " if is_playing else "  "
-            display = f"{prefix}{title} [{duration}]"
+            display = f"{prefix}{display_title} [{duration}]"
             
             if is_selected:
                 text = Text(display, style=f"bold {SPOTIFY_GREEN}")
@@ -572,7 +604,7 @@ class SRPlayer:
             
             table.add_row(text)
         
-        title = "📻 Episodes"
+        title = "Episodes"
         if self.filter_text:
             title += f" (filter: {self.filter_text})"
             
@@ -613,14 +645,7 @@ class SRPlayer:
         is_tiny = terminal_height < 15
         is_large = terminal_height > 30
         is_huge = terminal_height > 50
-        
-        # Spacing based on height
-        spacing = "\n"
-        if is_huge:
-            spacing = "\n\n\n"
-        elif is_large:
-            spacing = "\n\n"
-        
+
         # Podcast mode
         if self.mode == 'podcast' and self.playing_episode:
             title = self.playing_episode.get('title', 'Unknown Episode')
@@ -635,12 +660,20 @@ class SRPlayer:
                     (f"{title} ", f"bold {LIGHT_TEXT}"),
                     (f"({program_name})", GRAY_TEXT)
                 )
-                return Panel(Align.center(content, vertical="middle"), title="🎵 Now Playing", border_style=SPOTIFY_GREEN)
+                return Panel(Align.center(content, vertical="middle"), title="Now Playing", border_style=SPOTIFY_GREEN)
 
+            # Retrieve description with fallback to program description
+            description = self.playing_episode.get('description', '')
+            if not description and isinstance(program, dict):
+                description = program.get('description', '')
+
+            # Use precise spacing for podcast mode
+            pod_spacing = "\n"
+            
             lines = []
             if is_large:
-                # Check if big text fits (approx 5 chars per block letter + spacing)
-                if len(program_name) * 5 < (terminal_width // 2):
+                available_width = (terminal_width // 2) - 10
+                if len(program_name) * 5 <= available_width:
                     lines.append(self.render_big_text(program_name))
                 else:
                     lines.append(Text(program_name, style=f"bold {LIGHT_TEXT} underline"))
@@ -663,12 +696,19 @@ class SRPlayer:
             
             lines.append(Text(status, style=f"bold {SPOTIFY_GREEN}"))
             
-            content = Align.center(Text(spacing).join(lines), vertical="middle")
+            if description:
+                # Add description at the very bottom with wrapping
+                lines.append(Text(""))
+                desc_text = Text(description, style=GRAY_TEXT)
+                # Simple word wrap logic for description
+                lines.append(desc_text)
+            
+            content = Align.center(Text("\n").join([line for line in lines if line is not None]), vertical="middle")
         
         # Radio mode
         elif self.mode == 'radio' and self.playing_channel:
             channel_name = self.playing_channel['name']
-            status = "▶ Playing" if self.is_playing else "⏸ Paused"
+            status = "▶ Playing" if self.is_playing else "Paused"
             
             if is_tiny:
                 # Compact single-line layout for tiny windows
@@ -683,8 +723,8 @@ class SRPlayer:
 
             lines = []
             if is_large:
-                # Check if big text fits
-                if len(channel_name) * 5 < (terminal_width // 2):
+                available_width = (terminal_width * 2 // 3) - 10
+                if len(channel_name) * 5 <= available_width:
                     lines.append(self.render_big_text(channel_name))
                 else:
                     lines.append(Text(channel_name, style=f"bold {LIGHT_TEXT} underline"))
@@ -707,13 +747,13 @@ class SRPlayer:
             
             lines.append(Text(status, style=f"bold {SPOTIFY_GREEN}"))
             
-            content = Align.center(Text(spacing).join(lines), vertical="middle")
+            content = Align.center(Text("\n").join([line for line in lines if line is not None]), vertical="middle")
         
         else:
-            msg = "♪  Select a channel" if self.mode == 'radio' else "🎙️  Select a podcast"
+            msg = "♪  Select a channel" if self.mode == 'radio' else "Select a podcast"
             content = Align.center(Text(f"\n{msg}\n", style=GRAY_TEXT), vertical="middle")
         
-        return Panel(content, title="🎵 Now Playing", border_style=SPOTIFY_GREEN, padding=(2, 4))
+        return Panel(content, title="Now Playing", border_style=SPOTIFY_GREEN, padding=(2, 4))
     
     def create_search_panel(self):
         """Creates the search input panel."""
@@ -812,7 +852,7 @@ class SRPlayer:
         title = Text("SR TUI", style=f"bold {SPOTIFY_GREEN}")
         mode_indicator = f" [{self.mode.upper()}]"
         subtitle = Text(f" - Sveriges Radio{mode_indicator}", style=GRAY_TEXT)
-        clock = Text(f"  🕐 {current_time}", style=GRAY_TEXT)
+        clock = Text(f" {current_time}", style=GRAY_TEXT)
         header_text = Text("").join([title, subtitle, clock])
         layout["header"].update(Panel(Align.center(header_text)))
         
